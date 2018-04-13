@@ -1,0 +1,14 @@
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka0i.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka0iii.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka0iv.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka0iv_new.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka0v.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka2i.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka2v.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka3iii.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka3v.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka47iv.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka5iii.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka5v.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka7iii.fits
+wget ftp://ftp.eso.org/web/sci/facilities/paranal/instruments/isaac/tools/lib/uka7v.fits
