@@ -31,6 +31,9 @@ def main(name):
     Notes
     -----
     Created by Chun Ly, 17 April 2018
+
+    Modified by Chun Ly, 18 April 2018
+     - Bug fix: lowercase() -> lower()
     '''
 
     log.info('### Begin main ! ')
@@ -41,7 +44,7 @@ def main(name):
                  'K': tab0['FLUX_K'][0]}
     err_phot0 = {'J': tab0['FLUX_ERROR_J'][0], 'H': tab0['FLUX_ERROR_H'][0],
                  'K': tab0['FLUX_ERROR_K'][0]}
-    sptype    = tab0['SP_TYPE'][0].lowercase()
+    sptype    = tab0['SP_TYPE'][0].lower()
 
     log.info('### End main ! ')
 
