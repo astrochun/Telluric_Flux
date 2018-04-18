@@ -51,12 +51,13 @@ def main(wave, F_nu, AB=False):
     Modified by Chun Ly, 18 April 2018
      - Determine fluxes and AB magnitudes from convolution with filters
      - Determine fluxes and Vega magnitudes from convolution with filters
+     - Change waveband order for 2MASS filters
     '''
 
     log.info('### Begin main ! ')
 
     # Read in 2MASS J filter
-    filt_files = glob(filt_dir0+'2MASS_?.txt')
+    filt_files = [filt_dir0+'2MASS_'+bands+'.txt' for bands in ['J','H','K']]
 
     nu = c_Ang/wave
 
