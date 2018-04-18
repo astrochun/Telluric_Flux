@@ -45,10 +45,16 @@ def main(stellar_type, library='Pickles'):
 
     Returns
     -------
+    wave : np.array
+      Array of wavelengths in Angstroms
+
+    F_nu : np.array
+      Array of F_nu in erg/s/cm2/Hz (not normalized to photometry)
 
     Notes
     -----
     Created by Chun Ly, 17 April 2018
+     - Return wave and F_nu
     '''
 
     log.info('### Begin main !')
@@ -68,6 +74,8 @@ def main(stellar_type, library='Pickles'):
 
     # erg/s/cm2/Ang -> erg/s/cm2/Hz
     F_nu = F_lam * (wave**2) / const.c.to(u.Angstrom/u.s).value
+
+    return wave, F_nu
     
     log.info('### End main !')
 #enddef
