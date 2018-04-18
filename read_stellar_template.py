@@ -55,6 +55,7 @@ def main(stellar_type, library='Pickles'):
     -----
     Created by Chun Ly, 17 April 2018
      - Return wave and F_nu
+     - Bug fix: CDELT -> CDELT1
     '''
 
     log.info('### Begin main !')
@@ -68,7 +69,7 @@ def main(stellar_type, library='Pickles'):
     F_lam, hdr = fits.getdata(temp_file, header=True)
 
     crval1 = hdr['CRVAL1']
-    cdelt1 = hdr['CDELT']
+    cdelt1 = hdr['CDELT1']
     NX     = hdr['NAXIS1']
     wave = crval1 + cdelt1 * np.arange(NX)
 
