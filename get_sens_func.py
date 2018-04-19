@@ -37,12 +37,18 @@ def main(name, library='Pickles'):
     Created by Chun Ly, 18 April 2018
      - Get filter center and width from spec_convolve()
      - Plot photometry-normalized F_nu vs lambda
+     - Call spec_convolve.get_vega_fluxes()
+     - Plot photometric data on photometry-normalized F_nu
     '''
     
     log.info('### Begin main ! ')
 
     phot0, err_phot0, sptype, tab0 = get_photometry.main(name)
     mag0 = np.array([phot0['J'], phot0['H'], phot0['K']])
+
+    # Get Vega fluxes to convert from Vega mag to F_nu | + on 19/04/2018
+    Vega_fluxes = spec_convolve.get_vega_fluxes()
+    flux0       = 10**(-0.4*mag0) * Vega_fluxes
 
     wave, F_nu = read_stellar_template.main(sptype, library=library)
 
@@ -57,8 +63,10 @@ def main(name, library='Pickles'):
     F_lam = F_nu * c_Ang / (wave**2)
 
     plt.semilogy(wave, F_nu)
-    #plt.errorbar(wave_cen0, 10**(-0.4*mag0), xerr=FWHM0/2.0, marker='o',
-    #             ecolor='black', fmt=None, mec='blue')
+
+    # Plot photometric data on photometry-normalize F_nu | + on 19/04/2018
+    plt.errorbar(wave_cen0, flux0, xerr=FWHM0/2.0, marker='o',
+                 ecolor='black', fmt='none', mec='blue')
     #plt.ylim([1e-15,1e-11])
 
     log.info('### End main ! ')
