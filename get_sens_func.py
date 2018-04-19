@@ -19,6 +19,8 @@ from . import read_stellar_template, spec_convolve, get_photometry
 
 c_Ang = spec_convolve.c_Ang
 
+c_Jy = 1e-23 # erg/s/cm2/Hz to Janskies
+
 def main(name, library='Pickles'):
 
     '''
@@ -39,6 +41,7 @@ def main(name, library='Pickles'):
      - Plot photometry-normalized F_nu vs lambda
      - Call spec_convolve.get_vega_fluxes()
      - Plot photometric data on photometry-normalized F_nu
+     - Plot aesthetics: Jy for F_nu, errorbars, output to file
     '''
     
     log.info('### Begin main ! ')
@@ -62,12 +65,33 @@ def main(name, library='Pickles'):
 
     F_lam = F_nu * c_Ang / (wave**2)
 
-    plt.semilogy(wave, F_nu)
+    fig, ax = plt.subplots() # + on 19/04/2018
+
+    # + on 19/04/2018
+    F_Jy = F_nu/c_Jy
+    ax.semilogy(wave, F_Jy, 'b-', zorder=1)
 
     # Plot photometric data on photometry-normalize F_nu | + on 19/04/2018
-    plt.errorbar(wave_cen0, flux0, xerr=FWHM0/2.0, marker='o',
-                 ecolor='black', fmt='none', mec='blue')
-    #plt.ylim([1e-15,1e-11])
+    ax.errorbar(wave_cen0, flux0/c_Jy, xerr=FWHM0/2.0, ecolor='black',
+                elinewidth=1.5, capsize=3.0, capthick=1.5, zorder=2, fmt='none')
+    ax.scatter(wave_cen0, flux0/c_Jy, 50, marker='o', color='red',
+               edgecolor='black', zorder=2)
+    ax.set_xlabel('Wavelengths [Angstrom]')
+    ax.set_ylabel(r'$F_{\nu}$ [Jy]')
+    ax.minorticks_on()
+
+    # + on 19/04/2018
+    xlim = [min(wave)-100,max(wave)+100]
+    ax.set_xlim(xlim)
+
+    # + on 19/04/2018
+    non_zero = np.where(F_Jy != 0)[0]
+    ylim = [10**(np.floor(np.log10(min(F_Jy[non_zero])))), 2*max(F_Jy)]
+    ax.set_ylim(ylim)
+
+    # + on 19/04/2018
+    plt.subplots_adjust(left=0.1, right=0.97, bottom=0.1, top=0.99)
+    fig.savefig(name+'_spec_model.pdf')
 
     log.info('### End main ! ')
 #enddef
