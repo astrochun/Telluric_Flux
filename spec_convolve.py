@@ -25,10 +25,23 @@ temp_dir0 = co_dir0 + '/templates/'
 
 c_Ang = const.c.to(u.Angstrom/u.s).value
 
+def get_filter_center(wave, filt_profile):
+
+    dx     = wave[1]-wave[0]
+    top    = np.sum(filt_profile * wave * dx)
+    bottom = np.sum(filt_profile * dx)
+    cen_wave = top/bottom
+
+    top    = np.sum(filt_profile * (wave-cen_wave)**2 * dx)
+    bottom = np.sum(filt_profile * dx)
+    FWHM_wave = 2 * np.sqrt(2*np.log(2)) * np.sqrt(top/bottom)
+    return cen_wave, FWHM_wave
+#enddef
+
 def main(wave, F_nu, AB=False):
 
     '''
-    Provide explanation for function here.
+    Main function to convolve spectral templates with filters
 
     Parameters
     ----------
@@ -52,6 +65,7 @@ def main(wave, F_nu, AB=False):
      - Determine fluxes and AB magnitudes from convolution with filters
      - Determine fluxes and Vega magnitudes from convolution with filters
      - Change waveband order for 2MASS filters
+     - Call get_filter_center()
     '''
 
     log.info('### Begin main ! ')
@@ -67,12 +81,16 @@ def main(wave, F_nu, AB=False):
         log.info('## Reading : '+Vega_file)
         Vega_tab  = asc.read(Vega_file)
 
-    mag0_arr = np.zeros(len(filt_files))
+    mag0_arr  = np.zeros(len(filt_files))
+    cen0_arr  = np.zeros(len(filt_files))
+    FWHM0_arr = np.zeros(len(filt_files))
 
     for ff in range(len(filt_files)):
         filt_tab = asc.read(filt_files[ff])
         log.info('## Reading : '+filt_files[ff])
         filt_wave = filt_tab['col1'] * 1E4
+
+        cen0_arr[ff], FWHM0_arr[ff] = get_filter_center(filt_wave, filt_tab['col2'])
 
         f = interp1d(filt_wave, filt_tab['col2'], bounds_error=False,
                      fill_value = 0.0)
@@ -98,7 +116,7 @@ def main(wave, F_nu, AB=False):
     #endfor
 
     log.info('### End main ! ')
-    return mag0_arr
+    return mag0_arr, cen0_arr, FWHM0_arr
 
 #enddef
 
