@@ -21,6 +21,8 @@ c_Ang = spec_convolve.c_Ang
 
 c_Jy = 1e-23 # erg/s/cm2/Hz to Janskies
 
+Ang_micron = 1e4 # Angstrom to micron conversion
+
 def main(name, library='Pickles'):
 
     '''
@@ -42,6 +44,7 @@ def main(name, library='Pickles'):
      - Call spec_convolve.get_vega_fluxes()
      - Plot photometric data on photometry-normalized F_nu
      - Plot aesthetics: Jy for F_nu, errorbars, output to file
+     - Plot aesthetics: Plot F_lam in bottom panel; Angstroms -> microns
     '''
     
     log.info('### Begin main ! ')
@@ -65,32 +68,47 @@ def main(name, library='Pickles'):
 
     F_lam = F_nu * c_Ang / (wave**2)
 
-    fig, ax = plt.subplots() # + on 19/04/2018
+    fig, ax = plt.subplots(nrows=2) # + on 19/04/2018
 
     # + on 19/04/2018
     F_Jy = F_nu/c_Jy
-    ax.semilogy(wave, F_Jy, 'b-', zorder=1)
+    ax[0].semilogy(wave/Ang_micron, F_Jy, 'b-', zorder=1)
 
     # Plot photometric data on photometry-normalize F_nu | + on 19/04/2018
-    ax.errorbar(wave_cen0, flux0/c_Jy, xerr=FWHM0/2.0, ecolor='black',
-                elinewidth=1.5, capsize=3.0, capthick=1.5, zorder=2, fmt='none')
-    ax.scatter(wave_cen0, flux0/c_Jy, 50, marker='o', color='red',
-               edgecolor='black', zorder=2)
-    ax.set_xlabel('Wavelengths [Angstrom]')
-    ax.set_ylabel(r'$F_{\nu}$ [Jy]')
-    ax.minorticks_on()
+    ax[0].errorbar(wave_cen0/Ang_micron, flux0/c_Jy, xerr=FWHM0/2.0/Ang_micron,
+                   ecolor='black', elinewidth=1.5, capsize=3.0, capthick=1.5,
+                   zorder=2, fmt='none')
+    ax[0].scatter(wave_cen0/Ang_micron, flux0/c_Jy, 50, marker='o', color='red',
+                  edgecolor='black', zorder=2)
+    ax[0].set_xlabel('')
+    ax[0].set_xticklabels([])
+    ax[0].set_ylabel(r'$F_{\nu}$ [Jy]')
+    ax[0].minorticks_on()
 
     # + on 19/04/2018
-    xlim = [min(wave)-100,max(wave)+100]
-    ax.set_xlim(xlim)
+    xlim = np.array([min(wave)-100,max(wave)+100])/Ang_micron
+    ax[0].set_xlim(xlim)
 
     # + on 19/04/2018
     non_zero = np.where(F_Jy != 0)[0]
     ylim = [10**(np.floor(np.log10(min(F_Jy[non_zero])))), 2*max(F_Jy)]
-    ax.set_ylim(ylim)
+    ax[0].set_ylim(ylim)
+
+    # Plot F_lam | + on 19/04/2018
+    ax[1].semilogy(wave/Ang_micron, F_lam, 'b-')
+    ax[1].set_xlim(xlim)
+
+    non_zero = np.where(F_lam != 0)[0]
+    ylim = [10**(np.floor(np.log10(min(F_lam[non_zero])))), 2*max(F_lam)]
+    ax[1].set_ylim(ylim)
+
+    ax[1].set_xlabel(r'Wavelengths [$\mu$m]')
+    ax[1].set_ylabel(r'$F_{\lambda}$ [erg s$^{-1}$ cm$^{-2}$ $\AA^{-1}$]')
+    ax[1].minorticks_on()
 
     # + on 19/04/2018
-    plt.subplots_adjust(left=0.1, right=0.97, bottom=0.1, top=0.99)
+    plt.subplots_adjust(left=0.1, right=0.98, bottom=0.08, top=0.99,
+                        hspace=0.03)
     fig.savefig(name+'_spec_model.pdf')
 
     log.info('### End main ! ')
