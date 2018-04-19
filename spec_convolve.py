@@ -119,3 +119,49 @@ def main(wave, F_nu, AB=False):
 
 #enddef
 
+def get_vega_fluxes():
+    '''
+    Compute Vega F_nu fluxes in each waveband. This is to normalize magnitudes
+    to spectra
+
+    Parameters
+    ----------
+    None.
+
+    Returns
+    -------
+    flux0_arr : np.array
+      Array of fluxes
+
+    Notes
+    -----
+    Created by Chun Ly, 19 April 2018
+    '''
+
+    # Read in 2MASS J filter
+    filt_files = [filt_dir0+'2MASS_'+bands+'.txt' for bands in ['J','H','K']]
+
+    flux0_arr = np.zeros(len(filt_files))
+
+    for ff in range(len(filt_files)):
+        filt_tab = asc.read(filt_files[ff])
+        log.info('## Reading : '+filt_files[ff])
+        filt_wave = filt_tab['col1'] * 1E4
+        nu = c_Ang/filt_wave
+
+        V_wave = Vega_tab['col1']
+        V_Flam = Vega_tab['col2']
+        V_Fnu  = V_Flam * (V_wave**2) / c_Ang
+        f_Vega = interp1d(V_wave, V_Fnu)
+        V_Fnu_interp = f_Vega(filt_wave)
+
+        d_nu       = np.zeros(len(filt_wave))
+        d_nu[0:-1] = nu[1:] - nu[0:-1]
+        d_nu[-1]   = d_nu[-2]
+
+        top    = np.sum(V_Fnu_interp * filt_tab['col2'] * d_nu)
+        bottom = np.sum(filt_tab['col2'] * d_nu)
+        flux0_arr[ff] = top/bottom
+    #endfor
+    return flux0_arr
+#enddef
