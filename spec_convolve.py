@@ -25,6 +25,10 @@ temp_dir0 = co_dir0 + '/templates/'
 
 c_Ang = const.c.to(u.Angstrom/u.s).value
 
+# Read in Vega SED  | Moved up on 18/04/2018
+Vega_file = temp_dir0+'Vega.sed'
+Vega_tab  = asc.read(Vega_file)
+
 def get_filter_center(wave, filt_profile):
 
     dx     = wave[1]-wave[0]
@@ -66,6 +70,7 @@ def main(wave, F_nu, AB=False):
      - Determine fluxes and Vega magnitudes from convolution with filters
      - Change waveband order for 2MASS filters
      - Call get_filter_center()
+     - Moved Vega SED definition outside main()
     '''
 
     log.info('### Begin main ! ')
@@ -74,12 +79,6 @@ def main(wave, F_nu, AB=False):
     filt_files = [filt_dir0+'2MASS_'+bands+'.txt' for bands in ['J','H','K']]
 
     nu = c_Ang/wave
-
-    # Read in Vega SED if AB = False | + on 18/04/2018
-    if not AB:
-        Vega_file = temp_dir0+'Vega.sed'
-        log.info('## Reading : '+Vega_file)
-        Vega_tab  = asc.read(Vega_file)
 
     mag0_arr  = np.zeros(len(filt_files))
     cen0_arr  = np.zeros(len(filt_files))
