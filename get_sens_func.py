@@ -61,6 +61,7 @@ def main(name, filename, library='Pickles'):
      - Use interp1d to compute sens func: ADU/s -> erg/s/cm2/AA conversion
      - Import tlog for ASCII and stdout logging
      - Minor fixes; some plotting aesthetics
+     - Plot aesthetics (two panels, limits for plots)
     '''
 
     dir0 = os.path.dirname(filename)+'/'
@@ -152,11 +153,27 @@ def main(name, filename, library='Pickles'):
 
     spec_1d_sfunc = F_lam_interp / spec_1d
 
-    fig, ax = plt.subplots()
-    ax.semilogy(wave0 / Ang_micron, spec_1d_sfunc)
+    fig, ax = plt.subplots(nrows=2)
 
-    ax.set_xlabel(r'Wavelengths [$\mu$m]')
-    ax.set_ylabel(r'Conversion [erg s$^{-1}$ cm$^{-2}$ $\AA^{-1}$ / DN s$^{-1}$]')
+    nonzero = np.where(spec_1d != 0)[0]
+    x0 = wave0[nonzero]
+    ax[0].plot(x0 / Ang_micron, spec_1d[nonzero])
+
+    ax[0].set_ylabel(r'DN s$^{-1}$')
+    xlim1 = np.array([min(x0)-100,max(x0)+100])/Ang_micron
+
+    ax[0].set_xlim(xlim1)
+    ax[0].set_ylim([0,np.max(spec_1d)*1.1])
+    ax[0].set_xticklabels([])
+
+    good = np.where((spec_1d != 0) & (np.isfinite(spec_1d_sfunc)))[0]
+    ax[1].semilogy(wave0[good] / Ang_micron, spec_1d_sfunc[good])
+
+    ax[1].set_xlim(xlim1)
+    ax[1].set_xlabel(r'Wavelengths [$\mu$m]')
+    ax[1].set_ylabel(r'Conversion [erg s$^{-1}$ cm$^{-2}$ $\AA^{-1}$ / DN s$^{-1}$]')
+    plt.subplots_adjust(left=0.15, right=0.98, bottom=0.08, top=0.99,
+                        hspace=0.03)
 
     out_pdf = dir0 + name + '_sens_func.pdf'
     fig.savefig(out_pdf)
