@@ -5,6 +5,8 @@ get_sens_func
 Get sensitivity function (erg/s/cm2/AA -> DN/s) using telluric star spectra
 """
 
+import os
+
 from astropy.io import ascii as asc
 from astropy.io import fits
 
@@ -18,6 +20,8 @@ from astropy import log
 from . import read_stellar_template, spec_convolve, get_photometry
 
 from scipy.interpolate import interp1d
+
+from . import tlog
 
 c_Ang = spec_convolve.c_Ang
 
@@ -55,9 +59,15 @@ def main(name, filename, library='Pickles'):
     Modified by Chun Ly, 24 June 2018
      - Add filename input; Read FITS file
      - Use interp1d to compute sens func: ADU/s -> erg/s/cm2/AA conversion
+     - Import tlog for ASCII and stdout logging
     '''
-    
-    log.info('### Begin main ! ')
+
+    dir0 = os.path.dirname(filename)+'/'
+
+    logfile = dir0 + 'telluric_flux.log'
+    mylogger = tlog.log0(logfile)._get_logger()
+
+    mylogger.info('### Begin main ! ')
 
     phot0, err_phot0, sptype, tab0 = get_photometry.main(name)
     mag0 = np.array([phot0['J'], phot0['H'], phot0['K']])
@@ -123,13 +133,13 @@ def main(name, filename, library='Pickles'):
 
     # Compare 1-D spectrum against model to derive sensitivity
     # + on 24/06/2018
-    log.info('Reading : '+filename)
+    mylogger.info('Reading : '+filename)
     hdu_1d   = fits.open(filename)
     spec_1d  = hdu_1d['SCI'].data
     spec_hdr = hdu_1d['SCI'].header
 
     etime = spec_hdr['EXPTIME']
-    log.info('Integration time : %f ' % etime)
+    mylogger.info('Integration time : %f ' % etime)
 
     w_min, dw = spec_hdr['CRVAL1'], spec_hdr['CD1_1']
     wave0 = x_min + dx * np.arange(spec_hdr['NAXIS1'])
@@ -144,6 +154,6 @@ def main(name, filename, library='Pickles'):
     fig, ax = plt.subplots()
     ax.plot(wave0, spec_1d_sfunc)
 
-    log.info('### End main ! ')
+    mylogger.info('### End main ! ')
 #enddef
 
