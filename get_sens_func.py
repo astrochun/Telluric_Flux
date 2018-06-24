@@ -23,7 +23,7 @@ c_Jy = 1e-23 # erg/s/cm2/Hz to Janskies
 
 Ang_micron = 1e4 # Angstrom to micron conversion
 
-def main(name, library='Pickles'):
+def main(name, filename, library='Pickles'):
 
     '''
     Main function to call all functions to get stellar spectra template,
@@ -32,6 +32,11 @@ def main(name, library='Pickles'):
 
     Parameters
     ----------
+    name : str
+      Name of telluric star to use to query Simbad
+
+    filename : str
+      Full path for extracted 1-D spectrum of telluric star
 
     Returns
     -------
@@ -45,6 +50,8 @@ def main(name, library='Pickles'):
      - Plot photometric data on photometry-normalized F_nu
      - Plot aesthetics: Jy for F_nu, errorbars, output to file
      - Plot aesthetics: Plot F_lam in bottom panel; Angstroms -> microns
+    Modified by Chun Ly, 24 June 2018
+     - Add filename input; Read FITS file
     '''
     
     log.info('### Begin main ! ')
@@ -110,6 +117,20 @@ def main(name, library='Pickles'):
     plt.subplots_adjust(left=0.1, right=0.98, bottom=0.08, top=0.99,
                         hspace=0.03)
     fig.savefig(name+'_spec_model.pdf')
+
+    # Compare 1-D spectrum against model to derive sensitivity
+    # + on 24/06/2018
+    log.info('Reading : '+filename)
+    hdu_1d   = fits.open(filename)
+    spec_1d  = hdu_1d['SCI'].data
+    spec_hdr = hdu_1d['SCI'].header
+
+    etime = spec_hdr['EXPTIME']
+
+    w_min, dw = spec_hdr['CRVAL1'], spec_hdr['CD1_1']
+    wave0 = x_min + dx * np.arange(spec_hdr['NAXIS1'])
+
+    spec_1d /= etime
 
     log.info('### End main ! ')
 #enddef
