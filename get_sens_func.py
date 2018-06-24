@@ -60,6 +60,7 @@ def main(name, filename, library='Pickles'):
      - Add filename input; Read FITS file
      - Use interp1d to compute sens func: ADU/s -> erg/s/cm2/AA conversion
      - Import tlog for ASCII and stdout logging
+     - Minor fixes; some plotting aesthetics
     '''
 
     dir0 = os.path.dirname(filename)+'/'
@@ -129,7 +130,7 @@ def main(name, filename, library='Pickles'):
     # + on 19/04/2018
     plt.subplots_adjust(left=0.1, right=0.98, bottom=0.08, top=0.99,
                         hspace=0.03)
-    fig.savefig(name+'_spec_model.pdf')
+    fig.savefig(dir0+name+'_spec_model.pdf')
 
     # Compare 1-D spectrum against model to derive sensitivity
     # + on 24/06/2018
@@ -142,7 +143,7 @@ def main(name, filename, library='Pickles'):
     mylogger.info('Integration time : %f ' % etime)
 
     w_min, dw = spec_hdr['CRVAL1'], spec_hdr['CD1_1']
-    wave0 = x_min + dx * np.arange(spec_hdr['NAXIS1'])
+    wave0 = w_min + dw * np.arange(spec_hdr['NAXIS1'])
 
     spec_1d /= etime
 
@@ -152,7 +153,13 @@ def main(name, filename, library='Pickles'):
     spec_1d_sfunc = F_lam_interp / spec_1d
 
     fig, ax = plt.subplots()
-    ax.plot(wave0, spec_1d_sfunc)
+    ax.semilogy(wave0 / Ang_micron, spec_1d_sfunc)
+
+    ax.set_xlabel(r'Wavelengths [$\mu$m]')
+    ax.set_ylabel(r'Conversion [erg s$^{-1}$ cm$^{-2}$ $\AA^{-1}$ / DN s$^{-1}$]')
+
+    out_pdf = dir0 + name + '_sens_func.pdf'
+    fig.savefig(out_pdf)
 
     mylogger.info('### End main ! ')
 #enddef
