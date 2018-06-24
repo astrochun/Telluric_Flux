@@ -17,6 +17,8 @@ from astropy import log
 
 from . import read_stellar_template, spec_convolve, get_photometry
 
+from scipy.interpolate import interp1d
+
 c_Ang = spec_convolve.c_Ang
 
 c_Jy = 1e-23 # erg/s/cm2/Hz to Janskies
@@ -52,6 +54,7 @@ def main(name, filename, library='Pickles'):
      - Plot aesthetics: Plot F_lam in bottom panel; Angstroms -> microns
     Modified by Chun Ly, 24 June 2018
      - Add filename input; Read FITS file
+     - Use interp1d to compute sens func: ADU/s -> erg/s/cm2/AA conversion
     '''
     
     log.info('### Begin main ! ')
@@ -126,11 +129,20 @@ def main(name, filename, library='Pickles'):
     spec_hdr = hdu_1d['SCI'].header
 
     etime = spec_hdr['EXPTIME']
+    log.info('Integration time : %f ' % etime)
 
     w_min, dw = spec_hdr['CRVAL1'], spec_hdr['CD1_1']
     wave0 = x_min + dx * np.arange(spec_hdr['NAXIS1'])
 
     spec_1d /= etime
+
+    f0 = interp1d(wave, F_lam, bounds_error=False)
+    F_lam_interp = f0(wave0)
+
+    spec_1d_sfunc = F_lam_interp / spec_1d
+
+    fig, ax = plt.subplots()
+    ax.plot(wave0, spec_1d_sfunc)
 
     log.info('### End main ! ')
 #enddef
