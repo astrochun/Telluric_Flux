@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
+from astropy.table import Table
 from astropy import log
 
 from . import read_stellar_template, spec_convolve, get_photometry
@@ -63,6 +64,7 @@ def main(name, filename, library='Pickles'):
      - Minor fixes; some plotting aesthetics
      - Plot aesthetics (two panels, limits for plots)
      - Minor plot aesthetics (handle edge, limits for plots)
+     - Write ASCII file containing sensitivity function
     '''
 
     dir0 = os.path.dirname(filename)+'/'
@@ -132,7 +134,9 @@ def main(name, filename, library='Pickles'):
     # + on 19/04/2018
     plt.subplots_adjust(left=0.1, right=0.98, bottom=0.08, top=0.99,
                         hspace=0.03)
-    fig.savefig(dir0+name+'_spec_model.pdf')
+    out_pdf1 = dir0+name+'_spec_model.pdf'
+    mylogger.info('Writing : '+out_pdf1)
+    fig.savefig(out_pdf1)
 
     # Compare 1-D spectrum against model to derive sensitivity
     # + on 24/06/2018
@@ -181,7 +185,13 @@ def main(name, filename, library='Pickles'):
                         hspace=0.07)
 
     out_pdf = dir0 + name + '_sens_func.pdf'
+    mylogger.info('Writing : '+out_pdf)
     fig.savefig(out_pdf)
+
+    out_dat = out_pdf.replace('.pdf','.tbl')
+    mylogger.info('Writing : '+out_dat)
+    tab0 = Table([wave0, spec_1d_sfunc])
+    tab0[good2].write(out_dat, format='ascii.no_header', overwrite=True)
 
     mylogger.info('### End main ! ')
 #enddef
