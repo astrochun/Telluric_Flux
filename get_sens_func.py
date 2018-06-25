@@ -2,7 +2,7 @@
 get_sens_func
 =============
 
-Get sensitivity function (erg/s/cm2/AA -> DN/s) using telluric star spectra
+Get sensitivity function (DN/s -> erg/s/cm2/AA) using telluric star spectra
 """
 
 import os
@@ -62,6 +62,7 @@ def main(name, filename, library='Pickles'):
      - Import tlog for ASCII and stdout logging
      - Minor fixes; some plotting aesthetics
      - Plot aesthetics (two panels, limits for plots)
+     - Minor plot aesthetics (handle edge, limits for plots)
     '''
 
     dir0 = os.path.dirname(filename)+'/'
@@ -160,20 +161,24 @@ def main(name, filename, library='Pickles'):
     ax[0].plot(x0 / Ang_micron, spec_1d[nonzero])
 
     ax[0].set_ylabel(r'DN s$^{-1}$')
-    xlim1 = np.array([min(x0)-100,max(x0)+100])/Ang_micron
-
+    xlim1 = np.array([min(x0)-10,max(x0)+10])/Ang_micron
     ax[0].set_xlim(xlim1)
     ax[0].set_ylim([0,np.max(spec_1d)*1.1])
     ax[0].set_xticklabels([])
+    ax[0].minorticks_on()
 
     good = np.where((spec_1d != 0) & (np.isfinite(spec_1d_sfunc)))[0]
-    ax[1].semilogy(wave0[good] / Ang_micron, spec_1d_sfunc[good])
+    edge_cut = np.where((wave0 >= w_min+5) & (wave0 <= wave0[-1]-5))[0]
+    good2 = np.array(list(set(good) & set(edge_cut)))
+    ax[1].semilogy(wave0[good2] / Ang_micron, spec_1d_sfunc[good2])
 
-    ax[1].set_xlim(xlim1)
     ax[1].set_xlabel(r'Wavelengths [$\mu$m]')
-    ax[1].set_ylabel(r'Conversion [erg s$^{-1}$ cm$^{-2}$ $\AA^{-1}$ / DN s$^{-1}$]')
-    plt.subplots_adjust(left=0.15, right=0.98, bottom=0.08, top=0.99,
-                        hspace=0.03)
+    ylabel = r'Conversion [erg s$^{-1}$ cm$^{-2}$ $\AA^{-1}$ / DN s$^{-1}$]'
+    ax[1].set_xlim(xlim1)
+    ax[1].set_ylabel(ylabel)
+    ax[1].minorticks_on()
+    plt.subplots_adjust(left=0.12, right=0.98, bottom=0.08, top=0.99,
+                        hspace=0.07)
 
     out_pdf = dir0 + name + '_sens_func.pdf'
     fig.savefig(out_pdf)
