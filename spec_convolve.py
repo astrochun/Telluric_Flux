@@ -26,7 +26,7 @@ temp_dir0 = co_dir0 + '/templates/'
 c_Ang = const.c.to(u.Angstrom/u.s).value
 
 # Read in Vega SED  | Moved up on 18/04/2018
-Vega_file = temp_dir0+'Vega.sed'
+Vega_file = temp_dir0+'Vega_sed.txt'
 Vega_tab  = asc.read(Vega_file)
 
 def get_filter_center(wave, filt_profile):
